@@ -2,50 +2,69 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>読み込み中...</title>
 <style>
+  /* ==========================================
+     ⚙️ ここでアニメーションの速度を調整できます ⚙️
+     ========================================== */
+  :root {
+    --zoom-speed: 0.5s;   /* 画像Bが迫ってくる速度 */
+    --flip-speed: 0.05s;  /* 左右反転の速度 */
+  }
+  /* ========================================== */
+
   body {
     margin: 0;
-    overflow: hidden;
+    padding: 0;
     background-color: #000;
+    overflow: hidden;
+    /* スマホの「引っ張って更新」やスクロールを完全に禁止 */
+    overscroll-behavior: none; 
+    touch-action: none;
   }
   
+  /* 画像の共通設定（長押し保存の禁止など） */
+  img {
+    position: fixed;
+    /* top, left, width, heightの代わりに画面にピッタリ張り付く最新の書き方 */
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 画面比率に合わせて隙間なく表示 */
+    
+    /* ユーザーの操作を完全に無効化（長押しメニューやドラッグを防止） */
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
   /* 画像A (最初の画像) */
   #img-a {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    object-fit: cover;
     z-index: 10;
   }
   
   /* 画像B (びっくり画像) */
   #img-b {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    object-fit: cover;
     z-index: 20;
-    visibility: hidden; /* 最初は隠しておく */
-    transform: scale(0.01); /* 見えないくらい小さくしておく */
+    visibility: hidden;
+    transform: scale(0.01); /* 最初は見えないサイズ */
   }
 
-  /* ズームと反転の連続アニメーション設定 */
+  /* ズームと反転の連続アニメーション */
   .scare-action {
     visibility: visible !important;
-    /* 1. 最初の0.1秒で拡大 (zoomIn) 
-       2. 0.1秒遅れて(拡大後に) 0.05秒間隔で反転を6回繰り返す (flipShake) */
     animation: 
-      zoomIn 0.1s forwards, 
-      flipShake 0.05s 0.1s alternate 6;
+      zoomIn var(--zoom-speed) forwards, 
+      flipShake var(--flip-speed) var(--zoom-speed) alternate 6;
   }
 
-  /* ズームの動き */
   @keyframes zoomIn {
     0% { transform: scale(0.01); }
-    100% { transform: scale(1.5); } /* 1.5倍まで拡大 */
+    100% { transform: scale(1.5); } /* 1.5倍まで拡大して画面を覆う */
   }
 
-  /* 反転の動き（拡大したサイズを維持したまま反転） */
   @keyframes flipShake {
     0% { transform: scaleX(1.5) scaleY(1.5); }
     100% { transform: scaleX(-1.5) scaleY(1.5); }
@@ -58,15 +77,14 @@
 <img id="img-b" src="imageB.jpg" alt="画像B">
 
 <script>
-  // ページ内の画像が「完全に」読み込まれてからタイマーをスタートさせる
   window.addEventListener('load', () => {
     const imgA = document.getElementById('img-a');
     const imgB = document.getElementById('img-b');
 
-    // ピッタリ2秒後（2000ミリ秒後）に発動
+    // 2000ミリ秒（2秒）後に発動
     setTimeout(() => {
-      imgA.style.display = 'none'; // 画像Aを消す
-      imgB.classList.add('scare-action'); // 画像Bにアニメーションを一気に適用する
+      imgA.style.display = 'none';
+      imgB.classList.add('scare-action');
     }, 2000);
   });
 </script>
