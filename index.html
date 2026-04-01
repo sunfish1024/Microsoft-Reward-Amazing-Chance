@@ -7,7 +7,7 @@
 <style>
   :root {
     --zoom-speed: 1.2s;   /* 画像Bが迫ってくる速度 */
-    --flip-speed: 0.05s;  /* 左右反転の速度 */
+    --flip-speed: 0.5s;  /* 左右反転の速度 */
   }
 
   body {
@@ -72,7 +72,7 @@
 <body>
 
 <img id="img-a" src="imageA.jpg" alt="画像A">
-<img id="img-b" src="imageB.jpg" alt="画像B">
+<img id="img-b" src="imageBB.jpg" alt="画像B">
 
 <script>
   window.addEventListener('load', () => {
@@ -83,7 +83,7 @@
     setTimeout(() => {
       imgA.style.display = 'none';
       imgB.classList.add('scare-action');
-    }, 3000);
+    }, 3500);
   });
 </script>
 
