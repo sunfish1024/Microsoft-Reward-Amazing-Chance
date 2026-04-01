@@ -5,97 +5,70 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>読み込み中...</title>
 <style>
-  /* 画面全体の設定 */
   body {
     margin: 0;
-    overflow: hidden; /* はみ出した部分を隠す */
+    overflow: hidden;
     background-color: #000;
   }
-
-  /* 画像A：最初の2秒間、画面いっぱいに表示されるダミー画像 */
-  #image-a {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover; /* 画面全体を覆うように表示 */
+  
+  /* 画像A (最初の画像) */
+  #img-a {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    object-fit: cover;
     z-index: 10;
   }
-
-  /* 画像Bの枠：急接近（ズーム）の動きを担当 */
-  #image-b-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: none; /* 最初は隠しておく */
-    justify-content: center;
-    align-items: center;
-    transform: scale(0.01); /* 最初は点のように小さくしておく */
-    transition: transform 0.1s ease-in; /* 0.1秒で急激にズーム */
-    z-index: 20;
-  }
-
-  /* ズーム発動時のクラス */
-  .zoom {
-    transform: scale(1.5) !important; /* 画面を少しはみ出すくらいまで一気に拡大 */
-  }
-
-  /* 画像B本体：左右反転の動きを担当 */
-  #image-b {
-    width: 100%;
-    height: 100%;
+  
+  /* 画像B (びっくり画像) */
+  #img-b {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
     object-fit: cover;
+    z-index: 20;
+    visibility: hidden; /* 最初は隠しておく */
+    transform: scale(0.01); /* 見えないくらい小さくしておく */
   }
 
-  /* 左右反転を繰り返すアニメーション（0.05秒の反転を6回） */
-  .flip {
-    animation: flipAnim 0.05s alternate 6;
+  /* ズームと反転の連続アニメーション設定 */
+  .scare-action {
+    visibility: visible !important;
+    /* 1. 最初の0.1秒で拡大 (zoomIn) 
+       2. 0.1秒遅れて(拡大後に) 0.05秒間隔で反転を6回繰り返す (flipShake) */
+    animation: 
+      zoomIn 0.1s forwards, 
+      flipShake 0.05s 0.1s alternate 6;
   }
 
-  /* 反転のキーフレーム設定 */
-  @keyframes flipAnim {
-    0% { transform: scaleX(1); }
-    100% { transform: scaleX(-1); }
+  /* ズームの動き */
+  @keyframes zoomIn {
+    0% { transform: scale(0.01); }
+    100% { transform: scale(1.5); } /* 1.5倍まで拡大 */
+  }
+
+  /* 反転の動き（拡大したサイズを維持したまま反転） */
+  @keyframes flipShake {
+    0% { transform: scaleX(1.5) scaleY(1.5); }
+    100% { transform: scaleX(-1.5) scaleY(1.5); }
   }
 </style>
 </head>
 <body>
 
-<img id="image-a" src="imageA.jpg" alt="ダミー画像">
-
-<div id="image-b-wrapper">
-  <img id="image-b" src="imageB.jpg" alt="びっくり画像">
-</div>
+<img id="img-a" src="imageA.jpg" alt="画像A">
+<img id="img-b" src="imageB.jpg" alt="画像B">
 
 <script>
-  // ページ内の画像などがすべて読み込まれたらタイマー開始
-  window.onload = function() {
-    
-    // 2秒（2000ミリ秒）経過後に中身を実行
-    setTimeout(function() {
-      
-      // 1. 画像Aを消す
-      document.getElementById('image-a').style.display = 'none';
-      
-      // 2. 画像Bのラッパーを表示させる（この時点ではまだ極小サイズ）
-      const wrapper = document.getElementById('image-b-wrapper');
-      wrapper.style.display = 'flex';
-      
-      // 3. ほんの一瞬待ってからズームさせる（すぐにzoomを付けるとアニメーションしないため）
-      setTimeout(function() {
-        wrapper.classList.add('zoom');
-      }, 10);
-      
-      // 4. ズーム完了後（約0.1秒後）に、画像B本体を左右反転させる
-      setTimeout(function() {
-        document.getElementById('image-b').classList.add('flip');
-      }, 110); // ズーム時間100ms + 10msの余裕
-      
-    }, 2000); // 最初の待ち時間（2秒）
-  };
+  // ページ内の画像が「完全に」読み込まれてからタイマーをスタートさせる
+  window.addEventListener('load', () => {
+    const imgA = document.getElementById('img-a');
+    const imgB = document.getElementById('img-b');
+
+    // ピッタリ2秒後（2000ミリ秒後）に発動
+    setTimeout(() => {
+      imgA.style.display = 'none'; // 画像Aを消す
+      imgB.classList.add('scare-action'); // 画像Bにアニメーションを一気に適用する
+    }, 2000);
+  });
 </script>
 
 </body>
